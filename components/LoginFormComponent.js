@@ -5,10 +5,10 @@ class LoginFormComponent {
   constructor(page) {
     this.page = page;
 
-    this.userName = page.locator('#userName');
-    this.password = page.locator('#password');
-    this.loginButton = page.locator('#login');
-    this.errorMessage = page.locator('#name');
+    this.userName = page.getByRole('textbox', { name: 'UserName' });
+    this.password = page.getByRole('textbox', { name: 'Password' });
+    this.loginButton = page.getByRole('button', { name: 'Login' });
+    this.errorMessage = page.locator('.error-message');
   }
 
   async login(userName, password) {

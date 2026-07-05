@@ -6,19 +6,15 @@ class RegisterFormComponent {
   constructor(page) {
     this.page = page;
 
-    this.firstName = page.locator('#firstname');
-    this.lastName = page.locator('#lastname');
-    this.userName = page.locator('#userName');
-    this.password = page.locator('#password');
-    this.registerButton = page.locator('#register');
+    this.firstName = page.getByRole('textbox', { name: 'First Name' });
+    this.lastName = page.getByRole('textbox', { name: 'Last Name' });
+    this.userName = page.getByRole('textbox', { name: 'UserName' });
+    this.password = page.getByRole('textbox', { name: 'Password' });
+    this.registerButton = page.getByRole('button', { name: 'Register' });
 
     // Inline error text (e.g. "User already exists!", weak password message)
     this.errorMessage = page.locator('#name');
-
-    // Success popup shown after a valid registration
-    this.successModalTitle = page.locator('.modal-title');
-    this.successModalBody = page.locator('.modal-body');
-    this.closeModalButton = page.locator('#closeSmallModal-ok, #closeSmallModal');
+  
   }
 
   async fill({ firstName, lastName, userName, password } = {}) {
