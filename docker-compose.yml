@@ -1,0 +1,17 @@
+services:
+  playwright:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./playwright-report:/app/playwright-report
+      - ./test-results:/app/test-results
+    environment:
+      - CI=true
+
+  karate:
+    build:
+      context: .
+      dockerfile: Dockerfile.karate
+    volumes:
+      - ./target:/app/target

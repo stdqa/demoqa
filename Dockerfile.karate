@@ -1,0 +1,11 @@
+FROM eclipse-temurin:17-jre-jammy
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends wget \
+    && wget -q -O karate.jar https://github.com/karatelabs/karate/releases/download/v1.4.1/karate-1.4.1.jar \
+    && apt-get purge -y wget && rm -rf /var/lib/apt/lists/*
+
+COPY tests/api-karate ./tests/api-karate
+
+CMD ["java", "-jar", "karate.jar", "tests/api-karate"]
