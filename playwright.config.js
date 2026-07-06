@@ -2,7 +2,7 @@
 const { defineConfig, devices } = require('@playwright/test');
 
 module.exports = defineConfig({
-  testDir: './tests/ui',
+  testDir: './tests',
   fullyParallel: true,
   retries: process.env.CI ? 1 : 0,
   reporter: [['html', { open: 'never' }]],
