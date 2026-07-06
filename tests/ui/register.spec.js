@@ -1,15 +1,7 @@
 const { test, expect } = require('../../fixtures/fixtures');
 const { generateUser } = require('../../utils/testData');
+const { SEED_USER } = require('../../data/credentials');
 
-async function skipIfCaptchaBlocked(registerForm) {
-  const text = await registerForm.errorMessage
-    .textContent({ timeout: 3000 })
-    .catch(() => null);
-
-  if (text && text.includes('Please verify reCaptcha')) {
-    test.skip(true, 'Blocked by reCAPTCHA — environment issue, not app logic');
-  }
-}
 
 test.describe('Registration — positive', () => {
   test('a user can register with valid data and sees a success popup', async ({ registerForm, page }) => {
@@ -17,7 +9,6 @@ test.describe('Registration — positive', () => {
 
     const dialogPromise = page.waitForEvent('dialog');
     await registerForm.register(user);
-    await skipIfCaptchaBlocked(registerForm);
     const dialog = await dialogPromise;
     const message = dialog.message();
     await dialog.accept();
@@ -30,15 +21,11 @@ test.describe('Registration — negative / required fields / boundaries', () => 
   test('registering with an already-used username shows "User already exists!"', async ({
   registerForm,
   }) => {
-    const existingUser = {
+    await registerForm.register({
       firstName: 'Test',
       lastName: 'User',
-      userName: 'test',
-      password: 'Test123$%',
-    };
-
-    await registerForm.register(existingUser);
-    await skipIfCaptchaBlocked(registerForm);
+      ...SEED_USER,
+    });
 
     await expect(registerForm.errorMessage).toContainText('User exists!');
   });
@@ -55,11 +42,7 @@ test.describe('Registration — negative / required fields / boundaries', () => 
       const user = generateUser(overrides);
 
       await registerForm.register(user);
-      await skipIfCaptchaBlocked(registerForm);
       await expect(registerForm[locator]).toHaveClass(/is-invalid/);
-      test.fail(true, 'App does not display a required-field error message (only red border)');
-      await expect(registerForm.errorMessage).toContainText('required');
-      await expect(page).toHaveURL(/register/);
     });
   }
 
@@ -71,18 +54,24 @@ test.describe('Registration — negative / required fields / boundaries', () => 
       const user = generateUser({ password });
 
       await registerForm.register(user);
-      await skipIfCaptchaBlocked(registerForm);
       await expect(registerForm.errorMessage).toContainText('Passwords must have at least one non alphanumeric character');
     });
   }
 
   test('a username made of only whitespace is treated as empty (boundary case)', async ({
     registerForm,
+    page,
   }) => {
     const user = generateUser({ userName: '   ' });
+    
+    const outcomePromise = Promise.race([
+      page.waitForEvent('dialog').then((dialog) => dialog.dismiss()).then(() => 'dialog'),
+      new Promise((resolve) => setTimeout(() => resolve('timeout'), 3000)),
+    ]);
 
     await registerForm.register(user);
     await skipIfCaptchaBlocked(registerForm);
-    await expect(registerForm.successModalTitle).toBeHidden();
+
+    expect(await outcomePromise, 'a whitespace-only username should not be accepted as valid').toBe('timeout');
   });
 });

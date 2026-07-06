@@ -1,7 +1,4 @@
-/**
- * Component Object for the registration form on /register.
- * Encapsulates only what belongs to this widget — no page-level navigation logic here.
- */
+
 class RegisterFormComponent {
   constructor(page) {
     this.page = page;
@@ -12,7 +9,6 @@ class RegisterFormComponent {
     this.password = page.getByRole('textbox', { name: 'Password' });
     this.registerButton = page.getByRole('button', { name: 'Register' });
 
-    // Inline error text (e.g. "User already exists!", weak password message)
     this.errorMessage = page.locator('#name');
   
   }
