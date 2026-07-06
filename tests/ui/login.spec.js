@@ -1,30 +1,29 @@
 const { test, expect } = require('../../fixtures/fixtures');
-const { generateUser } = require('../../utils/testData');
+const { SEED_USER } = require('../../data/credentials');
 
 test.describe('Login — positive (full flow)', () => {
-  test('register via UI, then log in and land on the profile page', async ({
-    registerForm,
-    loginForm,
-    profile,
-    page,
-  }) => {
-    const user = generateUser();
+  test('a user registered via the API can log in and lands on the profile page', async ({
+      apiUser,
+      loginForm,
+      profile,
+      page,
+    }) => {
+      
+      await loginForm.login(apiUser.userName, apiUser.password);
+  
+      await expect(page).toHaveURL(/profile/);
+      await expect(profile.logoutButton).toBeVisible();
+      await expect(profile.userNameValue).toContainText(apiUser.userName);
+    });
+  
+  test('the seeded demo account (test / Test123$%) can log in', async ({ loginForm, profile, page }) => {
+    await loginForm.login(SEED_USER.userName, SEED_USER.password);
 
-    // 1. Register
-    await registerForm.register(user);
-    await expect(registerForm.successModalBody).toContainText('User Register Successfully.');
-    await registerForm.closeModalButton.click();
-
-    // 2. Go to login and sign in with the same credentials
-    await page.goto('/login');
-    await loginForm.login(user.userName, user.password);
-
-    // 3. Verify redirect + profile state
     await expect(page).toHaveURL(/profile/);
-    await expect(profile.logoutButton).toBeVisible();
-    await expect(profile.userNameValue).toContainText(user.userName);
+    await expect(profile.userNameValue).toContainText(SEED_USER.userName);
   });
 });
+
 
 test.describe('Login — negative / required fields', () => {
   // registeredUser is created via API — keeps these cases independent from the
@@ -45,11 +44,13 @@ test.describe('Login — negative / required fields', () => {
     await loginForm.login('', 'SomePass1!');
 
     await expect(page).toHaveURL(/login/);
+    await expect(loginForm.usernameInput).toHaveClass(/is-invalid/);
   });
 
   test('empty password is rejected (required field)', async ({ loginForm, page, registeredUser }) => {
     await loginForm.login(registeredUser.userName, '');
-
+    
     await expect(page).toHaveURL(/login/);
+    await expect(loginForm.passwordInput).toHaveClass(/is-invalid/);
   });
 });

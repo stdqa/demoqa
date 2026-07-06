@@ -3,7 +3,7 @@ const { RegisterFormComponent } = require('../components/RegisterFormComponent')
 const { LoginFormComponent } = require('../components/LoginFormComponent');
 const { ProfileComponent } = require('../components/ProfileComponent');
 const { generateUser } = require('../utils/testData');
-
+const { AccountApiClient } = require('../api/accountApiClient');
 
 const test = base.test.extend({
   // Navigates to /register and hands back the component, ready to use.
@@ -22,6 +22,17 @@ const test = base.test.extend({
   profile: async ({ page }, use) => {
     await use(new ProfileComponent(page));
   },
+
+  apiUser: async ({ request }, use) => {
+      const client = new AccountApiClient(request);
+      const user = await client.createUser();
+  
+      await use(user); // <-- test runs here
+  
+      if (user.userId && user.token) {
+        await client.deleteUser(user.userId, user.token);
+      }
+    },
 
   // Creates a user via the API (fast, no UI flakiness) for tests that only
   // care about the login step, then deletes it afterwards to keep accounts clean.

@@ -6,8 +6,8 @@ class ProfileComponent {
   constructor(page) {
     this.page = page;
 
-    this.userNameLabel = page.getByText('User Name :');
-    this.userNameValue = page.getByText(userName);
+    this.userNameLabel = page.locator('#userName-label');
+    this.userNameValue = page.locator('#userName-value');
     this.logoutButton = page.getByRole('button', { name: 'Logout' });
   }
 }
