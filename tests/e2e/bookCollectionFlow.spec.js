@@ -12,9 +12,9 @@ test.describe('Book collection — full user journey', () => {
     bookDetail,
     page,
   }) => {
-    1 & 2. Registration already happened via the apiUser fixture
-    (bypassing the reCAPTCHA-guarded /register page); log in with those
-    credentials through the real UI form.
+    // 1 & 2. Registration already happened via the apiUser fixture
+    // (bypassing the reCAPTCHA-guarded /register page); log in with those
+    // credentials through the real UI form.
     await test.step('log in with the API-registered user', async () => {
       await loginForm.login(apiUser.userName, apiUser.password);
       //await loginForm.login(SEED_USER.userName, SEED_USER.password);
